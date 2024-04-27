@@ -1,3 +1,5 @@
+//This code was provided as a starter code by my teacher
+
 var PLAY=1
 var END=0;
   var gameState=PLAY;
@@ -13,6 +15,8 @@ var fireworks, fireworkImage;
 var angel, angelImage;
 var santaclaus, santaclausImage;
 var snowflakes, snowflakesImage;
+var restart, gameOver;
+             
 
 function preload(){
   snowman_running= loadImage("SNOWMAN.png")
@@ -29,10 +33,11 @@ function preload(){
   angelImage= loadImage("Angel.png")
   santaclausImage= loadImage("Santa claus.png")
   snowflakesImage= loadImage("Snowflake.png")
+  restartImg= loadImage("restart.png")
  
 }
 function setup() {
-  createCanvas(800,600);
+  createCanvas(700,600);
   
   
    ground= createSprite(400,570,1200,100)
@@ -40,7 +45,7 @@ function setup() {
   ground.x= ground.width/2;
   
    snowman = createSprite(70,490,20,20);
- // snowman.addImage(snowman_collided);
+ 
  
   snowman.addImage( snowman_running);
   
@@ -51,6 +56,11 @@ function setup() {
  invisibleGround=createSprite(400,580,800,10)
   invisibleGround.visible=false;
   
+  restart = createSprite(300,140);
+  restart.addImage(restartImg);
+  
+  restart.scale=0.5;
+  restart.visible= false;
   hollyGroup = new Group();
   angelGroup=new Group();
   fireworksGroup=new Group();
@@ -66,9 +76,14 @@ function setup() {
 function draw() {
    background(0);
    textSize(20);
-  fill(500);
+   fill("papayawhip")
   text("Score: "+ score, 500,40);
+ fill("papayawhip")
 text("life: "+ life , 500,60);
+  fill("olivedrab");
+  text("Press Space to start, Stay away from the  obstacles on the ground ",40,20)
+  
+  
   
   if (gameState===PLAY){
     hollyleaf();
@@ -77,20 +92,21 @@ text("life: "+ life , 500,60);
   angel();
   santaclaus();
  snowflakes();
-   //score = score + Math.round(getFrameRate()/60);
+   
     if(hollyGroup.isTouching(snowman)){
       score= score+1
+      
      
       hollyGroup[0].destroy()
     }
   if(score >= 0){
-      ground.velocityX = -10;
+      ground.velocityX = -90;
     }else{
-      ground.velocityX = -(6 + 3*score/100);
+      ground.velocityX = -(6 + 10   *score/100);
     }
-  
+ 
     if(keyDown("space") && snowman.y >= 200) {
-      snowman.velocityY = -15;
+      snowman.velocityY = -20;
     }
   
     //add gravity
@@ -103,10 +119,14 @@ text("life: "+ life , 500,60);
   
     if(obstaclesGroup.isTouching(snowman)){
         gameState = END;
+      snowman.changeImage(snowman_collided);
+      life= life-1
+      
     }
   }
 else if (gameState === END) {
-    //set velcity of each game object to 0
+  restart.visible=true;
+    
     ground.velocityX = 0;
     snowman.velocityY = 0;
     obstaclesGroup.setVelocityXEach(0);
@@ -115,11 +135,10 @@ else if (gameState === END) {
   angelGroup.setVelocityXEach(0);
    santaclausGroup.setVelocityXEach(0);
    snowflakesGroup.setVelocityXEach(0);
-    
-    
-    
-    
-    snowman.changeImage(snowman_collided);
+  
+    if(mousePressedOver(restart)) {
+      if(life>0){
+      reset();}}
     
     //set lifetime of the game objects so that they are never destroyed
     obstaclesGroup.setLifetimeEach(-1);
@@ -128,6 +147,7 @@ else if (gameState === END) {
    angelGroup.setLifetimeEach(-1);
    santaclausGroup.setLifetimeEach(-1);
    snowflakesGroup.setLifetimeEach(-1);
+  
   
 
  
@@ -145,7 +165,7 @@ function hollyleaf(){
     hollyl.scale = 0.19;
     hollyl.velocityX = -3;
     
-     //assign lifetime to the variable
+     
     hollyl.lifetime = 200;
     
     //adjust the depth
@@ -156,10 +176,13 @@ function hollyleaf(){
   
 }
 }
+
+
+
 function spawnObstacles(){
    if(frameCount % 200 === 0) {
     var obstacle = createSprite(600,520,20,20);
-    //obstacle.debug = true;
+    
     obstacle.velocityX = -3;
     obstacle.debug= true
      
@@ -194,7 +217,7 @@ function spawnObstacles(){
 function fireworks(){
    if(frameCount % 350 === 0) {
     var firew = createSprite(600,55,20,20);
-    firew.y = Math.round(random(30,170));
+    firew.y = Math.round(random(80,100));
     firew.addImage(fireworkImage);
     firew.scale = 0.2;
     firew.velocityX = -3;
@@ -208,7 +231,7 @@ function fireworks(){
 function angel(){
    if(frameCount % 600 === 0) {
     var angela = createSprite(0,55,20,20);
-    angela.y = Math.round(random(200,205));
+    angela.y = Math.round(random(500,105));
     angela.addImage(angelImage);
     angela.scale = 0.2;
     angela.velocityX = 3;
@@ -243,4 +266,16 @@ function snowflakes(){
   snowf.lifetime=200;
      snowflakesGroup.add(snowf)
 }
+}
+function reset(){
+  gameState = PLAY;
+  restart.visible=false;
+  
+  obstaclesGroup.destroyEach();
+  hollyGroup.destroyEach();
+  angelGroup.destroyEach();
+  fireworksGroup.destroyEach();
+  santaclausGroup.destroyEach();
+  snowflakesGroup.destroyEach();
+  
 }
